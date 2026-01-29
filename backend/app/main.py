@@ -16,8 +16,9 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifecycle: crea tabelle all'avvio"""
-    Base.metadata.create_all(bind=engine)
-    print("✅ Database tables created/verified")
+    if settings.AUTO_CREATE_TABLES:
+        Base.metadata.create_all(bind=engine)
+        print("✅ Database tables created/verified")
     yield
 
 # Crea app FastAPI
