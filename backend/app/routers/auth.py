@@ -15,6 +15,7 @@ from ..utils import (
     get_password_hash,
     create_access_token,
     get_current_user,
+    require_admin,
 )
 from ..config import get_settings
 
@@ -33,6 +34,11 @@ class InitialSetup(BaseModel):
     nome: str
     cognome: str
     nome_azienda: str = Field(default="")
+
+
+class ChangePasswordRequest(BaseModel):
+    old_password: str = Field(..., min_length=8)
+    new_password: str = Field(..., min_length=8)
 
 
 @router.get("/setup-status", response_model=SetupStatus)
@@ -87,7 +93,7 @@ async def initial_setup(
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Errore durante la creazione: {str(e)}"
+            detail="Errore interno durante la creazione utente"
         )
 
 
@@ -117,7 +123,12 @@ async def login(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.post("/register", response_model=UtenteResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register",
+    response_model=UtenteResponse,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_admin())],
+)
 async def register(
     user_data: UtenteCreate,
     db: Session = Depends(get_db)
@@ -154,18 +165,17 @@ async def get_me(current_user: Utente = Depends(get_current_user)):
 
 @router.post("/change-password")
 async def change_password(
-    old_password: str,
-    new_password: str,
+    payload: ChangePasswordRequest,
     current_user: Utente = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Cambio password utente corrente"""
-    if not verify_password(old_password, current_user.password_hash):
+    if not verify_password(payload.old_password, current_user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Password attuale non corretta"
         )
     
-    current_user.password_hash = get_password_hash(new_password)
+    current_user.password_hash = get_password_hash(payload.new_password)
     db.commit()
     return {"message": "Password aggiornata con successo"}
