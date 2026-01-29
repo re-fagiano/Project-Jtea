@@ -1,4 +1,4 @@
-# Backend requirements (kept in sync with root requirements.txt).
+# Root requirements for Railpack installs (no nested -r includes).
 fastapi==0.109.0
 uvicorn[standard]==0.27.0
 sqlalchemy==2.0.25
