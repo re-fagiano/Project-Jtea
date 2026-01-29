@@ -2,11 +2,14 @@
 Configurazione applicazione FastAPI
 """
 from pydantic_settings import BaseSettings
+from pydantic import model_validator
 from functools import lru_cache
 
 
 class Settings(BaseSettings):
     """Configurazione caricata da .env"""
+
+    ENVIRONMENT: str = "development"
     
     # Database
     DATABASE_URL: str = "postgresql://postgres:password@localhost:5432/ticket_platform"
@@ -29,10 +32,23 @@ class Settings(BaseSettings):
     # App
     APP_NAME: str = "Ticket Platform API"
     DEBUG: bool = True
+    AUTO_CREATE_TABLES: bool = True
     
     class Config:
         env_file = ".env"
         case_sensitive = True
+
+    @model_validator(mode="after")
+    def validate_production_settings(self) -> "Settings":
+        """Valida impostazioni critiche in produzione."""
+        if self.ENVIRONMENT.lower() == "production":
+            if self.DEBUG:
+                raise ValueError("DEBUG non può essere True in produzione")
+            if self.SECRET_KEY == "your-super-secret-key-change-in-production":
+                raise ValueError("SECRET_KEY deve essere impostata in produzione")
+            if self.DATABASE_URL == "postgresql://postgres:password@localhost:5432/ticket_platform":
+                raise ValueError("DATABASE_URL deve essere impostato in produzione")
+        return self
 
 
 @lru_cache()
