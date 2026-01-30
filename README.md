@@ -21,9 +21,10 @@ npm run dev
 ```
 
 ## Variabili d'ambiente
-Copia `.env.example` in `.env` (backend) oppure configura le variabili nel servizio Railway (DATABASE_URL o PGHOST/PGPORT/PGUSER/PGPASSWORD/PGDATABASE).
+Copia `.env.example` in `.env` (backend) oppure configura le variabili nel servizio Railway.
 
 ## Deploy su Railway
 1. Collega il repo a Railway.
 2. Railway userà `railway.json` (Nixpacks) e avvierà `bash start.sh`.
 3. Imposta le variabili d'ambiente richieste (vedi tabella nella documentazione o `.env.example`).
+
