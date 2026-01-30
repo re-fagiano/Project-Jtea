@@ -3,6 +3,7 @@ Configurazione applicazione FastAPI
 """
 from pydantic_settings import BaseSettings
 from pydantic import model_validator
+from urllib.parse import quote_plus
 from functools import lru_cache
 
 
@@ -12,7 +13,12 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     
     # Database
-    DATABASE_URL: str = "postgresql://postgres:password@localhost:5432/ticket_platform"
+    DATABASE_URL: str = ""
+    PGHOST: str = ""
+    PGPORT: str = ""
+    PGUSER: str = ""
+    PGPASSWORD: str = ""
+    PGDATABASE: str = ""
     
     # JWT Auth
     SECRET_KEY: str = "your-super-secret-key-change-in-production"
@@ -31,12 +37,27 @@ class Settings(BaseSettings):
     
     # App
     APP_NAME: str = "Ticket Platform API"
-    DEBUG: bool = True
+    DEBUG: bool = False
     AUTO_CREATE_TABLES: bool = True
     
     class Config:
         env_file = ".env"
         case_sensitive = True
+
+    @model_validator(mode="before")
+    def assemble_db_url(cls, values: dict) -> dict:
+        if not values.get("DATABASE_URL") and all(
+            values.get(k) for k in ["PGHOST", "PGPORT", "PGUSER", "PGPASSWORD", "PGDATABASE"]
+        ):
+            user = values["PGUSER"]
+            password = quote_plus(values["PGPASSWORD"])
+            host = values["PGHOST"]
+            port = values["PGPORT"]
+            db = values["PGDATABASE"]
+            values["DATABASE_URL"] = (
+                f"postgresql://{user}:{password}@{host}:{port}/{db}?sslmode=require"
+            )
+        return values
 
     @model_validator(mode="after")
     def validate_production_settings(self) -> "Settings":
@@ -46,8 +67,10 @@ class Settings(BaseSettings):
                 raise ValueError("DEBUG non può essere True in produzione")
             if self.SECRET_KEY == "your-super-secret-key-change-in-production":
                 raise ValueError("SECRET_KEY deve essere impostata in produzione")
-            if self.DATABASE_URL == "postgresql://postgres:password@localhost:5432/ticket_platform":
-                raise ValueError("DATABASE_URL deve essere impostato in produzione")
+            if not self.DATABASE_URL or "localhost" in self.DATABASE_URL:
+                raise ValueError(
+                    "DATABASE_URL deve essere impostato in produzione (o definire PGHOST/PGPORT/PGUSER/PGPASSWORD/PGDATABASE)"
+                )
         return self
 
 
