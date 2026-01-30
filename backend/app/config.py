@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     
     # App
     APP_NAME: str = "Ticket Platform API"
-    DEBUG: bool = True
+    DEBUG: bool = False
     AUTO_CREATE_TABLES: bool = True
     
     class Config:
