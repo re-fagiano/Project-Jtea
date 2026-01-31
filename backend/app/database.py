@@ -11,6 +11,10 @@ settings = get_settings()
 
 database_url = settings.DATABASE_URL
 
+# Fallback: se nessuna DATABASE_URL valida, usa SQLite in locale (utile per demo o dev)
+if not database_url:
+    database_url = "sqlite:///./data.db"
+
 if database_url and not database_url.startswith("sqlite"):
     url = make_url(database_url)
     if url.drivername.startswith("postgresql") and "sslmode" not in url.query:

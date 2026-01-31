@@ -4,6 +4,7 @@ Entry point FastAPI - Piattaforma Gestione Ticket
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.exc import SQLAlchemyError
 from .config import get_settings
 from .database import engine, Base
 from .routers import auth, clienti, ambiti, richieste, attivita, contratti, schedules, chat
@@ -17,8 +18,11 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     """Lifecycle: crea tabelle all'avvio"""
     if settings.AUTO_CREATE_TABLES:
-        Base.metadata.create_all(bind=engine)
-        print("✅ Database tables created/verified")
+        try:
+            Base.metadata.create_all(bind=engine)
+            print("✅ Database tables created/verified")
+        except SQLAlchemyError as exc:
+            print(f"⚠️  Impossibile creare/verificare le tabelle: {exc}")
     yield
 
 # Crea app FastAPI

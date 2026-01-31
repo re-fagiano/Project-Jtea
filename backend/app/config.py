@@ -46,7 +46,8 @@ class Settings(BaseSettings):
 
     @model_validator(mode="before")
     def assemble_db_url(cls, values: dict) -> dict:
-        if not values.get("DATABASE_URL") and all(
+        db_url = values.get("DATABASE_URL") or ""
+        if ("localhost" in db_url or not db_url) and all(
             values.get(k) for k in ["PGHOST", "PGPORT", "PGUSER", "PGPASSWORD", "PGDATABASE"]
         ):
             user = values["PGUSER"]
