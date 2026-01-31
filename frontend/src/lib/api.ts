@@ -1,6 +1,6 @@
-/**
- * API Client per comunicazione con backend FastAPI
- */
+"""
+API Client per comunicazione con backend FastAPI.
+"""
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -8,9 +8,6 @@ interface FetchOptions extends RequestInit {
     requireAuth?: boolean;
 }
 
-/**
- * Wrapper per fetch con gestione token e errori
- */
 export async function apiFetch<T>(
     endpoint: string,
     options: FetchOptions = {}
@@ -43,7 +40,24 @@ export async function apiFetch<T>(
     return response.json();
 }
 
-// Shortcuts per metodi comuni
+export async function login(email: string, password: string) {
+    const formData = new FormData();
+    formData.append("username", email);
+    formData.append("password", password);
+
+    const response = await fetch(`${API_BASE_URL}/login`, {
+        method: "POST",
+        body: formData,
+    });
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.detail || "Errore di autenticazione");
+    }
+
+    return response.json();
+}
+
 export const api = {
     get: <T>(endpoint: string, options?: FetchOptions) =>
         apiFetch<T>(endpoint, { ...options, method: "GET" }),
@@ -66,63 +80,29 @@ export const api = {
         apiFetch<T>(endpoint, { ...options, method: "DELETE" }),
 };
 
-// Tipi principali
 export interface User {
     id: string;
     email: string;
-    nome: string;
-    cognome: string;
     ruolo: "admin" | "supervisore" | "tecnico" | "cliente";
-    attivo: boolean;
 }
 
 export interface Cliente {
     id: string;
-    ragione_sociale: string;
-    email_principale: string;
-    partita_iva?: string;
-    gestione_interna: boolean;
-    attivo: boolean;
+    nome: string;
+    email: string;
 }
 
 export interface Richiesta {
     id: string;
-    numero_richiesta: number;
-    cliente_id: string;
-    descrizione: string;
-    stato: string;
-    priorita: string;
-    origine: string;
-    created_at: string;
-}
-
-export interface Attivita {
-    id: string;
-    richiesta_id: string;
-    descrizione: string;
-    stato: string;
-    priorita: string;
-    risolutiva: boolean;
-    tipo_addebito?: string;
-    ore_addebitate?: number;
-    created_at: string;
-}
-
-export interface Contratto {
-    id: string;
-    nome_contratto: string;
-    tipo: "forfettario" | "monte_ore";
+    titolo: string;
     descrizione?: string;
-    attivo: boolean;
+    stato: string;
+    cliente_id: string;
+    utente_id: string;
+    created_at: string;
 }
 
-export interface ContrattoCliente {
-    id: string;
-    cliente_id: string;
-    nome_contratto_custom?: string;
-    tipo: "forfettario" | "monte_ore";
-    stato: string;
-    ore_totali?: number;
-    ore_utilizzate: number;
-    ore_residue?: number;
+export interface RichiestaDetail extends Richiesta {
+    cliente: Cliente;
+    utente: User;
 }

@@ -1,15 +1,32 @@
-# Project-Jtea (Ticket Platform)
+# Project-Jtea
 
-Backend FastAPI + frontend Next.js.
+Repository con backend FastAPI e frontend Next.js + Tailwind.
 
-## Avvio in locale
+```
+project-jtea/
+  backend/
+  frontend/
+  railway.json
+```
 
-### Backend
+## Backend (FastAPI)
+
+### Setup locale
 ```bash
 cd backend
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+```
+
+Copia il file `.env.example` in `.env` e personalizzalo.
+
+Variabili essenziali:
+- `DATABASE_URL` **oppure** `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, `PGDATABASE`.
+- `SECRET_KEY`, `ALGORITHM`, `ACCESS_TOKEN_EXPIRE_MINUTES` per i token JWT.
+
+Avvio:
+```bash
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 

@@ -1,18 +1,17 @@
 """
-Configurazione applicazione FastAPI
+Configurazione applicazione FastAPI.
 """
-from pydantic_settings import BaseSettings
-from pydantic import model_validator
-from urllib.parse import quote_plus
+from __future__ import annotations
+
 from functools import lru_cache
 import logging
 
 
 class Settings(BaseSettings):
-    """Configurazione caricata da .env"""
+    """Configurazione caricata da variabili d'ambiente e file .env."""
 
     ENVIRONMENT: str = "development"
-    
+
     # Database
     DATABASE_URL: str = ""
     PGHOST: str = ""
@@ -20,35 +19,29 @@ class Settings(BaseSettings):
     PGUSER: str = ""
     PGPASSWORD: str = ""
     PGDATABASE: str = ""
-    
-    # JWT Auth
-    SECRET_KEY: str = "your-super-secret-key-change-in-production"
+
+    # JWT
+    SECRET_KEY: str = "change-me"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    
-    # Email SMTP
-    SMTP_HOST: str = "smtp.example.com"
-    SMTP_PORT: int = 587
-    SMTP_USER: str = ""
-    SMTP_PASSWORD: str = ""
-    EMAIL_FROM: str = "noreply@example.com"
-    
-    # Redis
-    REDIS_URL: str = "redis://localhost:6379/0"
-    
+
     # App
-    APP_NAME: str = "Ticket Platform API"
+    APP_NAME: str = "Project Jtea API"
     DEBUG: bool = False
     AUTO_CREATE_TABLES: bool = True
-    
+    CORS_ORIGINS: str = "http://localhost:3000"
+
     class Config:
         env_file = ".env"
         case_sensitive = True
 
-    @model_validator(mode="before")
-    def assemble_db_url(cls, values: dict) -> dict:
-        db_url = values.get("DATABASE_URL") or ""
-        if ("localhost" in db_url or not db_url) and all(
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def assemble_db_url(cls, value: str, info) -> str:
+        """Costruisce DATABASE_URL da variabili PG* se necessario."""
+        values = info.data
+        db_url = value or ""
+        if (not db_url or "localhost" in db_url) and all(
             values.get(k) for k in ["PGHOST", "PGPORT", "PGUSER", "PGPASSWORD", "PGDATABASE"]
         ):
             user = values["PGUSER"]
@@ -56,10 +49,8 @@ class Settings(BaseSettings):
             host = values["PGHOST"]
             port = values["PGPORT"]
             db = values["PGDATABASE"]
-            values["DATABASE_URL"] = (
-                f"postgresql://{user}:{password}@{host}:{port}/{db}?sslmode=require"
-            )
-        return values
+            return f"postgresql://{user}:{password}@{host}:{port}/{db}?sslmode=require"
+        return db_url
 
     @model_validator(mode="after")
     def validate_production_settings(self) -> "Settings":
@@ -79,5 +70,4 @@ class Settings(BaseSettings):
 
 @lru_cache()
 def get_settings() -> Settings:
-    """Singleton per le impostazioni"""
     return Settings()
