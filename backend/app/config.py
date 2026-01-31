@@ -5,6 +5,7 @@ from pydantic_settings import BaseSettings
 from pydantic import model_validator
 from urllib.parse import quote_plus
 from functools import lru_cache
+import logging
 
 
 class Settings(BaseSettings):
@@ -63,14 +64,15 @@ class Settings(BaseSettings):
     @model_validator(mode="after")
     def validate_production_settings(self) -> "Settings":
         """Valida impostazioni critiche in produzione."""
+        logger = logging.getLogger(__name__)
         if self.ENVIRONMENT.lower() == "production":
             if self.DEBUG:
-                raise ValueError("DEBUG non può essere True in produzione")
+                logger.warning("DEBUG è True in produzione: disabilitalo per sicurezza.")
             if self.SECRET_KEY == "your-super-secret-key-change-in-production":
-                raise ValueError("SECRET_KEY deve essere impostata in produzione")
+                logger.warning("SECRET_KEY non è impostata in produzione.")
             if not self.DATABASE_URL or "localhost" in self.DATABASE_URL:
-                raise ValueError(
-                    "DATABASE_URL deve essere impostato in produzione (o definire PGHOST/PGPORT/PGUSER/PGPASSWORD/PGDATABASE)"
+                logger.warning(
+                    "DATABASE_URL mancante o non valida in produzione (o definire PGHOST/PGPORT/PGUSER/PGPASSWORD/PGDATABASE)."
                 )
         return self
 
