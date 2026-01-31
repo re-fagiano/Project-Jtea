@@ -8,8 +8,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Ticket Platform - Gestione Interventi Tecnici",
-  description: "Piattaforma per la gestione di ticket e interventi tecnici",
+  title: "Project Jtea",
+  description: "Piattaforma MVP per la gestione ticket e clienti",
 };
 
 export default function RootLayout({
