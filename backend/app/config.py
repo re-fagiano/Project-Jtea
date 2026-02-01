@@ -34,11 +34,6 @@ class Settings(BaseSettings):
     AUTO_CREATE_TABLES: bool = True
     CORS_ORIGINS: str = "http://localhost:3000"
 
-    @property
-    def cors_origins_list(self) -> list[str]:
-        """Converte CORS_ORIGINS (stringa comma-separated) in lista."""
-        return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
-
     # Email/Redis (optional)
     SMTP_HOST: str = ""
     SMTP_PORT: int = 0
