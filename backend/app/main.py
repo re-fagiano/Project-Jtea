@@ -5,10 +5,13 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
+import os
 
 from .config import get_settings
 from .database import Base, engine
+from .routes.health import router as health_router
 from .routers import auth, clienti, richieste
 
 settings = get_settings()
@@ -31,6 +34,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.include_router(health_router)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list or ["*"],
@@ -40,14 +45,24 @@ app.add_middleware(
 )
 
 
-@app.get("/")
+@app.get("/", include_in_schema=False)
 def root():
-    return {"message": "Backend online"}
+    return {"message": "API running"}
 
 
-@app.get("/health")
-def health():
-    return {"status": "healthy"}
+@app.get("/db-test")
+def db_test():
+    db_url = os.getenv("DATABASE_URL")
+    if not db_url:
+        return {"db": "error", "detail": "DATABASE_URL not set"}
+
+    try:
+        engine = create_engine(db_url, pool_pre_ping=True)
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        return {"db": "connected"}
+    except Exception as e:
+        return {"db": "error", "detail": str(e)}
 
 
 app.include_router(auth)
