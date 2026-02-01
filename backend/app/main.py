@@ -5,7 +5,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
+import os
 
 from .config import get_settings
 from .database import Base, engine
@@ -48,9 +50,19 @@ def root():
     return {"message": "API running"}
 
 
-@app.get("/health")
-def health():
-    return {"status": "healthy"}
+@app.get("/db-test")
+def db_test():
+    db_url = os.getenv("DATABASE_URL")
+    if not db_url:
+        return {"db": "error", "detail": "DATABASE_URL not set"}
+
+    try:
+        engine = create_engine(db_url, pool_pre_ping=True)
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        return {"db": "connected"}
+    except Exception as e:
+        return {"db": "error", "detail": str(e)}
 
 
 app.include_router(auth)
