@@ -6,6 +6,9 @@ from __future__ import annotations
 from functools import lru_cache
 import logging
 
+from urllib.parse import quote_plus
+from pydantic import field_validator, model_validator
+from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     """Configurazione caricata da variabili d'ambiente e file .env."""
