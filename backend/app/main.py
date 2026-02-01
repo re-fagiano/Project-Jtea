@@ -36,7 +36,7 @@ app.include_router(health_router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins_list or ["*"],
+    allow_origins=[o.strip() for o in settings.CORS_ORIGINS.split(",")] if settings.CORS_ORIGINS else ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -46,6 +46,11 @@ app.add_middleware(
 @app.get("/", include_in_schema=False)
 def root():
     return {"message": "API running"}
+
+
+@app.get("/health")
+def health():
+    return {"status": "healthy"}
 
 
 app.include_router(auth)
