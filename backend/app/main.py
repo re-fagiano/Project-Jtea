@@ -9,6 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from .config import get_settings
 from .database import Base, engine
+from .routes.health import router as health_router
 from .routers import auth, clienti, richieste
 
 settings = get_settings()
@@ -31,6 +32,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.include_router(health_router)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list or ["*"],
@@ -40,14 +43,9 @@ app.add_middleware(
 )
 
 
-@app.get("/")
+@app.get("/", include_in_schema=False)
 def root():
-    return {"message": "Backend online"}
-
-
-@app.get("/health")
-def health():
-    return {"status": "healthy"}
+    return {"message": "API running"}
 
 
 app.include_router(auth)
