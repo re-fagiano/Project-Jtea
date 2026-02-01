@@ -9,6 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from .config import get_settings
 from .database import Base, engine
+from .routes.health import router as health_router
 from .routers import auth, clienti, richieste
 
 settings = get_settings()
@@ -30,6 +31,8 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+app.include_router(health_router)
 
 app.add_middleware(
     CORSMiddleware,
