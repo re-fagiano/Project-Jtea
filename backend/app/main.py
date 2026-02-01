@@ -40,9 +40,9 @@ app.add_middleware(
 )
 
 
-@app.get("/")
+@app.get("/", include_in_schema=False)
 def root():
-    return {"message": "Backend online"}
+    return {"message": "API running"}
 
 
 @app.get("/health")
