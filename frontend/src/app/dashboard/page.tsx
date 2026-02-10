@@ -1,40 +1,40 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import AppHeader from "@/components/AppHeader";
 import Card from "@/components/Card";
 import { api, Richiesta, User } from "@/lib/api";
 
 export default function DashboardPage() {
-    const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [richieste, setRichieste] = useState<Richiesta[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            router.push("/login");
-            return;
-        }
+    const loadData = useCallback(async () => {
+        setLoading(true);
+        setError("");
 
-        Promise.all([
-            api.get<User>("/users/me"),
-            api.get<Richiesta[]>("/api/richieste"),
-        ])
-            .then(([userData, richiesteData]) => {
-                setUser(userData);
-                setRichieste(richiesteData);
-            })
-            .catch((err) => {
-                setError(err instanceof Error ? err.message : "Errore caricamento");
-            })
-            .finally(() => setLoading(false));
-    }, [router]);
+        try {
+            const [userData, richiesteData] = await Promise.all([
+                api.get<User>("/users/me"),
+                api.get<Richiesta[]>("/api/richieste"),
+            ]);
+
+            setUser(userData);
+            setRichieste(richiesteData);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Impossibile caricare, riprova.");
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        loadData();
+    }, [loadData]);
 
     if (loading) {
         return (
@@ -45,7 +45,7 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-950 text-gray-100">
+        <>
             <AppHeader
                 title="Dashboard"
                 subtitle={user ? `Bentornato, ${user.email}` : undefined}
@@ -58,8 +58,11 @@ export default function DashboardPage() {
 
             <main className="px-6 py-8 space-y-6">
                 {error && (
-                    <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
-                        {error}
+                    <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm space-y-3">
+                        <p>{error || "Impossibile caricare, riprova."}</p>
+                        <button type="button" className="btn btn-outline" onClick={loadData}>
+                            Riprova
+                        </button>
                     </div>
                 )}
 
@@ -91,6 +94,6 @@ export default function DashboardPage() {
                     )}
                 </Card>
             </main>
-        </div>
+        </>
     );
 }

@@ -1,43 +1,65 @@
-"""
-API Client per comunicazione con backend FastAPI.
-"""
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+import { API_URL } from "@/lib/config";
 
 interface FetchOptions extends RequestInit {
     requireAuth?: boolean;
 }
 
-export async function apiFetch<T>(
-    endpoint: string,
-    options: FetchOptions = {}
-): Promise<T> {
-    const { requireAuth = true, ...fetchOptions } = options;
+type UnauthorizedHandler = () => void;
+type TokenGetter = () => string | null;
 
-    const headers: HeadersInit = {
-        "Content-Type": "application/json",
-        ...fetchOptions.headers,
-    };
+let getToken: TokenGetter = () => (typeof window !== "undefined" ? localStorage.getItem("token") : null);
+let onUnauthorized: UnauthorizedHandler = () => {};
 
-    if (requireAuth) {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            throw new Error("Non autenticato");
-        }
-        (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+export function setApiAuthHandlers(handlers: {
+    getToken?: TokenGetter;
+    onUnauthorized?: UnauthorizedHandler;
+}) {
+    if (handlers.getToken) {
+        getToken = handlers.getToken;
+    }
+    if (handlers.onUnauthorized) {
+        onUnauthorized = handlers.onUnauthorized;
+    }
+}
+
+export async function apiFetch<T>(path: string, options: FetchOptions = {}): Promise<T> {
+    const { requireAuth = true, headers: customHeaders, ...fetchOptions } = options;
+
+    const headers = new Headers(customHeaders);
+    if (!headers.has("Content-Type") && !(fetchOptions.body instanceof FormData)) {
+        headers.set("Content-Type", "application/json");
     }
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    if (requireAuth) {
+        const token = getToken();
+        if (!token) {
+            onUnauthorized();
+            throw new Error("Sessione non valida. Effettua di nuovo il login.");
+        }
+        headers.set("Authorization", `Bearer ${token}`);
+    }
+
+    const response = await fetch(`${API_URL}${path}`, {
         ...fetchOptions,
         headers,
     });
 
-    if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.detail || `Errore ${response.status}`);
+    if (response.status === 401) {
+        onUnauthorized();
+        throw new Error("Sessione scaduta. Effettua di nuovo il login.");
     }
 
-    return response.json();
+    const isJson = response.headers.get("content-type")?.includes("application/json");
+    const payload = isJson ? await response.json().catch(() => null) : null;
+
+    if (!response.ok) {
+        const detail = payload && typeof payload === "object" && "detail" in payload
+            ? String(payload.detail)
+            : null;
+        throw new Error(detail || `Impossibile completare la richiesta (${response.status}).`);
+    }
+
+    return payload as T;
 }
 
 export async function login(email: string, password: string) {
@@ -45,17 +67,11 @@ export async function login(email: string, password: string) {
     formData.append("username", email);
     formData.append("password", password);
 
-    const response = await fetch(`${API_BASE_URL}/login`, {
+    return apiFetch<{ access_token: string }>("/login", {
         method: "POST",
         body: formData,
+        requireAuth: false,
     });
-
-    if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.detail || "Errore di autenticazione");
-    }
-
-    return response.json();
 }
 
 export const api = {

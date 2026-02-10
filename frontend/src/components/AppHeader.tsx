@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+
+import { useAuth } from "@/context/AuthContext";
 
 interface AppHeaderProps {
     title: string;
@@ -10,12 +11,7 @@ interface AppHeaderProps {
 }
 
 export default function AppHeader({ title, subtitle, action }: AppHeaderProps) {
-    const router = useRouter();
-
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        router.push("/login");
-    };
+    const { logout } = useAuth();
 
     return (
         <header className="flex flex-col gap-4 border-b border-gray-800 bg-gray-950/70 px-6 py-5 md:flex-row md:items-center md:justify-between">
@@ -37,7 +33,7 @@ export default function AppHeader({ title, subtitle, action }: AppHeaderProps) {
                     Dashboard
                 </Link>
                 {action}
-                <button type="button" className="btn btn-outline" onClick={handleLogout}>
+                <button type="button" className="btn btn-outline" onClick={logout}>
                     Logout
                 </button>
             </div>
