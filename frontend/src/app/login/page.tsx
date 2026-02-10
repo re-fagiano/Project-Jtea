@@ -4,10 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+import { useAuth } from "@/context/AuthContext";
 import { login } from "@/lib/api";
 
 export default function LoginPage() {
     const router = useRouter();
+    const { login: setAuthToken } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -20,7 +22,7 @@ export default function LoginPage() {
 
         try {
             const data = await login(email, password);
-            localStorage.setItem("token", data.access_token);
+            setAuthToken(data.access_token);
             router.push("/dashboard");
         } catch (err) {
             setError(err instanceof Error ? err.message : "Errore di connessione");
@@ -89,7 +91,7 @@ export default function LoginPage() {
                     </form>
 
                     <p className="text-center text-gray-400 mt-6">
-                        Non hai un account? <span className="text-indigo-400">Richiedi l'accesso</span>
+                        Non hai un account? <span className="text-indigo-400">Richiedi l&apos;accesso</span>
                     </p>
                 </div>
             </div>
