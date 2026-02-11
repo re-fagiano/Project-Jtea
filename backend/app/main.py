@@ -6,7 +6,6 @@ import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.exc import SQLAlchemyError
 
 from .config import get_settings
@@ -47,24 +46,7 @@ app.add_middleware(
 
 @app.get("/", include_in_schema=False)
 def root():
-    """Apre il frontend se configurato, altrimenti mostra una landing diagnostica."""
-    frontend_url = os.getenv("FRONTEND_URL", "").strip()
-    if frontend_url:
-        return RedirectResponse(url=frontend_url, status_code=307)
-
-    return HTMLResponse(
-        content=(
-            "<h1>Project Jtea API online</h1>"
-            "<p>Il backend è attivo, ma FRONTEND_URL non è configurata.</p>"
-            "<ul>"
-            "<li><a href='/docs'>Apri Swagger docs</a></li>"
-            "<li><a href='/health'>Health check</a></li>"
-            "<li><a href='/db/health'>DB health check</a></li>"
-            "</ul>"
-            "<p>Per avere una UI navigabile su / imposta la variabile FRONTEND_URL "
-            "nel servizio backend Railway.</p>"
-        )
-    )
+    return {"status": "ok", "service": "project-jtea-api"}
 
 
 app.include_router(auth)
