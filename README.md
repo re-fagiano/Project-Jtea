@@ -31,16 +31,10 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
 Endpoint utili:
-- `GET /health` per verificare lo stato dell'API.
+- `GET /health` per verificare lo stato dell'API (ritorna `{"status":"ok"}`).
 - `GET /docs` per la documentazione Swagger.
-- La rotta `/` non è definita e restituisce `404` per design.
+- `GET /` restituisce uno status rapido del servizio.
 
-(Facoltativo) Se vuoi una root route, aggiungi in `backend/app/main.py`:
-```python
-@app.get("/", include_in_schema=False)
-def root():
-    return {"message": "API running"}
-```
 
 ### Frontend
 ```bash
