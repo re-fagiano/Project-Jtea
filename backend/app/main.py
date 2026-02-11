@@ -2,12 +2,12 @@
 Entry point FastAPI - Project Jtea.
 """
 from contextlib import asynccontextmanager
+import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, text
+from fastapi.responses import RedirectResponse
 from sqlalchemy.exc import SQLAlchemyError
-import os
 
 from .config import get_settings
 from .database import Base, engine
@@ -47,22 +47,10 @@ app.add_middleware(
 
 @app.get("/", include_in_schema=False)
 def root():
-    return {"message": "API running"}
-
-
-@app.get("/db-test")
-def db_test():
-    db_url = os.getenv("DATABASE_URL")
-    if not db_url:
-        return {"db": "error", "detail": "DATABASE_URL not set"}
-
-    try:
-        engine = create_engine(db_url, pool_pre_ping=True)
-        with engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
-        return {"db": "connected"}
-    except Exception as e:
-        return {"db": "error", "detail": str(e)}
+    """Redirect alla UI se configurata, altrimenti alla documentazione API."""
+    frontend_url = os.getenv("FRONTEND_URL", "").strip()
+    destination = frontend_url or "/docs"
+    return RedirectResponse(url=destination, status_code=307)
 
 
 app.include_router(auth)

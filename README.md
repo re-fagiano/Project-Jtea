@@ -31,16 +31,10 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
 Endpoint utili:
-- `GET /health` per verificare lo stato dell'API.
+- `GET /health` per verificare lo stato dell'API (ritorna `{"status":"ok"}`).
 - `GET /docs` per la documentazione Swagger.
-- La rotta `/` non è definita e restituisce `404` per design.
+- `GET /` reindirizza alla UI se imposti `FRONTEND_URL`; in alternativa reindirizza a `/docs`.
 
-(Facoltativo) Se vuoi una root route, aggiungi in `backend/app/main.py`:
-```python
-@app.get("/", include_in_schema=False)
-def root():
-    return {"message": "API running"}
-```
 
 ### Frontend
 ```bash
@@ -59,8 +53,30 @@ Le variabili principali sono:
 - `SECRET_KEY`, `ALGORITHM`, `ACCESS_TOKEN_EXPIRE_MINUTES` per i token JWT.
 - `REDIS_URL` per Celery (se usato).
 - Parametri SMTP se invii email (`SMTP_*`, `EMAIL_FROM`).
+- `FRONTEND_URL` per reindirizzare `/` al frontend deployato.
 
 ## Deploy su Railway
 1. Collega il repo a Railway.
 2. Railway userà `railway.json` (Nixpacks) e avvierà `bash start.sh`.
 3. Imposta le variabili d'ambiente richieste (vedi tabella nella documentazione o `.env.example`).
+4. (Consigliato) Se il frontend è su un servizio separato, imposta `FRONTEND_URL` nel backend per aprire la UI direttamente da `/`.
+
+## Quick start Codex + Railway (Express + Postgres)
+Se vuoi creare un nuovo progetto Express deployato su Railway con Postgres usando Codex, segui la guida dedicata:
+
+- `docs_railway_codex_express.md`
+
+
+## Verifica online su Railway
+Dopo il deploy, verifica che il servizio sia realmente online:
+
+```bash
+curl https://<tuo-dominio>.up.railway.app/health
+curl https://<tuo-dominio>.up.railway.app/db/health
+```
+
+Risultati attesi:
+- `/health` => `{"status":"ok","service":"project-jtea-api"}`
+- `/db/health` => `{"db":"ok"}`
+
+Se `/db/health` fallisce, controlla che `DATABASE_URL` (oppure variabili `PG*`) sia configurata nel servizio Railway.
