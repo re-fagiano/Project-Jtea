@@ -63,18 +63,3 @@ Le variabili principali sono:
 Se vuoi creare un nuovo progetto Express deployato su Railway con Postgres usando Codex, segui la guida dedicata:
 
 - `docs_railway_codex_express.md`
-
-
-## Verifica online su Railway
-Dopo il deploy, verifica che il servizio sia realmente online:
-
-```bash
-curl https://<tuo-dominio>.up.railway.app/health
-curl https://<tuo-dominio>.up.railway.app/db/health
-```
-
-Risultati attesi:
-- `/health` => `{"status":"ok","service":"project-jtea-api"}`
-- `/db/health` => `{"db":"ok"}`
-
-Se `/db/health` fallisce, controlla che `DATABASE_URL` (oppure variabili `PG*`) sia configurata nel servizio Railway.
