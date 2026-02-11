@@ -64,3 +64,8 @@ Le variabili principali sono:
 1. Collega il repo a Railway.
 2. Railway userà `railway.json` (Nixpacks) e avvierà `bash start.sh`.
 3. Imposta le variabili d'ambiente richieste (vedi tabella nella documentazione o `.env.example`).
+
+## Quick start Codex + Railway (Express + Postgres)
+Se vuoi creare un nuovo progetto Express deployato su Railway con Postgres usando Codex, segui la guida dedicata:
+
+- `docs_railway_codex_express.md`
