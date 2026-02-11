@@ -53,6 +53,7 @@ Le variabili principali sono:
 - `SECRET_KEY`, `ALGORITHM`, `ACCESS_TOKEN_EXPIRE_MINUTES` per i token JWT.
 - `REDIS_URL` per Celery (se usato).
 - Parametri SMTP se invii email (`SMTP_*`, `EMAIL_FROM`).
+- `FRONTEND_URL` per reindirizzare `/` al frontend deployato.
 
 ## Deploy su Railway
 1. Collega il repo a Railway.
