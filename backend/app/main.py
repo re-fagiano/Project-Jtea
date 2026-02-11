@@ -2,12 +2,12 @@
 Entry point FastAPI - Project Jtea.
 """
 from contextlib import asynccontextmanager
+import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, text
+from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.exc import SQLAlchemyError
-import os
 
 from .config import get_settings
 from .database import Base, engine
@@ -47,22 +47,24 @@ app.add_middleware(
 
 @app.get("/", include_in_schema=False)
 def root():
-    return {"message": "API running"}
+    """Apre il frontend se configurato, altrimenti mostra una landing diagnostica."""
+    frontend_url = os.getenv("FRONTEND_URL", "").strip()
+    if frontend_url:
+        return RedirectResponse(url=frontend_url, status_code=307)
 
-
-@app.get("/db-test")
-def db_test():
-    db_url = os.getenv("DATABASE_URL")
-    if not db_url:
-        return {"db": "error", "detail": "DATABASE_URL not set"}
-
-    try:
-        engine = create_engine(db_url, pool_pre_ping=True)
-        with engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
-        return {"db": "connected"}
-    except Exception as e:
-        return {"db": "error", "detail": str(e)}
+    return HTMLResponse(
+        content=(
+            "<h1>Project Jtea API online</h1>"
+            "<p>Il backend è attivo, ma FRONTEND_URL non è configurata.</p>"
+            "<ul>"
+            "<li><a href='/docs'>Apri Swagger docs</a></li>"
+            "<li><a href='/health'>Health check</a></li>"
+            "<li><a href='/db/health'>DB health check</a></li>"
+            "</ul>"
+            "<p>Per avere una UI navigabile su / imposta la variabile FRONTEND_URL "
+            "nel servizio backend Railway.</p>"
+        )
+    )
 
 
 app.include_router(auth)
