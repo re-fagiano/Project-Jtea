@@ -6,7 +6,6 @@ import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
 from sqlalchemy.exc import SQLAlchemyError
 
 from .config import get_settings
@@ -47,10 +46,7 @@ app.add_middleware(
 
 @app.get("/", include_in_schema=False)
 def root():
-    """Redirect alla UI se configurata, altrimenti alla documentazione API."""
-    frontend_url = os.getenv("FRONTEND_URL", "").strip()
-    destination = frontend_url or "/docs"
-    return RedirectResponse(url=destination, status_code=307)
+    return {"status": "ok", "service": "project-jtea-api"}
 
 
 app.include_router(auth)
