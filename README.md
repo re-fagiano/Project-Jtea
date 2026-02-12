@@ -60,6 +60,42 @@ Le variabili principali sono:
 2. Railway userà `railway.json` (Nixpacks) e avvierà `bash start.sh`.
 3. Imposta le variabili d'ambiente richieste (vedi tabella nella documentazione o `.env.example`).
 
+### Railway: variabili da impostare (backend)
+
+Obbligatorie:
+- `ENVIRONMENT=production`
+- `SECRET_KEY=<chiave-lunga-casuale>`
+- `ALGORITHM=HS256`
+- `ACCESS_TOKEN_EXPIRE_MINUTES=30`
+- `APP_NAME=Project Jtea API`
+- `DEBUG=false`
+- `AUTO_CREATE_TABLES=true`
+- `CORS_ORIGINS=https://<dominio-frontend>`
+
+Database (scegli una sola modalità):
+- Modalità A (consigliata Railway): `DATABASE_URL` (iniettata dal servizio PostgreSQL collegato).
+- Modalità B (fallback): `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, `PGDATABASE`.
+
+Opzionali:
+- `SMTP_HOST`, `SMTP_PORT`, `EMAIL_FROM`
+- `REDIS_URL`
+
+### Railway: variabili frontend
+
+- `NEXT_PUBLIC_API_URL=https://<dominio-backend-railway>`
+
+### Verifica rapida post deploy
+
+```bash
+curl https://<dominio-backend-railway>/health
+```
+
+Output atteso:
+
+```json
+{"status":"ok"}
+```
+
 ## Quick start Codex + Railway (Express + Postgres)
 Se vuoi creare un nuovo progetto Express deployato su Railway con Postgres usando Codex, segui la guida dedicata:
 
