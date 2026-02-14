@@ -33,7 +33,7 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000
 Endpoint utili:
 - `GET /health` per verificare lo stato dell'API (ritorna `{"status":"ok"}`).
 - `GET /docs` per la documentazione Swagger.
-- `GET /` restituisce uno status rapido del servizio.
+- `GET /` reindirizza al frontend se `FRONTEND_URL` è impostata; altrimenti restituisce uno status rapido del servizio.
 
 
 ### Frontend

@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     AUTO_CREATE_TABLES: bool = True
     CORS_ORIGINS: str = "http://localhost:3000"
+    FRONTEND_URL: str = ""
 
     # Email/Redis (optional)
     SMTP_HOST: str = ""
