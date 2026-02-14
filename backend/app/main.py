@@ -2,9 +2,9 @@
 Entry point FastAPI - Project Jtea.
 """
 from contextlib import asynccontextmanager
-import os
 
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -46,6 +46,8 @@ app.add_middleware(
 
 @app.get("/", include_in_schema=False)
 def root():
+    if settings.FRONTEND_URL:
+        return RedirectResponse(url=settings.FRONTEND_URL, status_code=307)
     return {"status": "ok", "service": "project-jtea-api"}
 
 
