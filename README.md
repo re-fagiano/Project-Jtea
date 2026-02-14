@@ -84,6 +84,24 @@ Opzionali:
 
 - `NEXT_PUBLIC_API_URL=https://<dominio-backend-railway>`
 
+### Collegamento rapido Codex ↔ Railway (questo progetto)
+Per collegare velocemente il repository al progetto Railway indicato e scaricare le variabili del servizio backend:
+
+```bash
+bash scripts/railway_codex_setup.sh
+```
+
+Lo script usa di default questi ID (sovrascrivibili via env):
+- `PROJECT_ID=e9c06cf5-a20b-440f-92c5-a165ff996232`
+- `SERVICE_ID=be554fa7-7c1c-480e-adfb-6a19e37618e5`
+- `ENVIRONMENT_ID=294682c0-50e3-4792-8913-87516a279aca`
+
+Esempio con override:
+
+```bash
+PROJECT_ID=<project-id> SERVICE_ID=<service-id> ENVIRONMENT_ID=<environment-id> bash scripts/railway_codex_setup.sh
+```
+
 ### Verifica rapida post deploy
 
 ```bash
