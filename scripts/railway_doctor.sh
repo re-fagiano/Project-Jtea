@@ -42,6 +42,11 @@ fi
 railway --version || true
 
 say ""; say "[3/8] Network reachability"
+if [[ -n "${HTTP_PROXY:-}${HTTPS_PROXY:-}${http_proxy:-}${https_proxy:-}" ]]; then
+  say "proxy=detected"
+else
+  warn "proxy=not-detected"
+fi
 if ! curl -fsSI --max-time 10 https://railway.com >/dev/null 2>&1; then
   err "Cannot reach https://railway.com from this environment."
   exit 3
