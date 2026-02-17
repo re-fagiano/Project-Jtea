@@ -48,6 +48,10 @@ app.add_middleware(
 def root():
     if settings.FRONTEND_URL:
         return RedirectResponse(url=settings.FRONTEND_URL, status_code=307)
+    if settings.ENVIRONMENT.lower() == "production":
+        # In produzione, se il frontend non è configurato, mostriamo la docs API
+        # invece del payload JSON grezzo per un atterraggio più utile.
+        return RedirectResponse(url="/docs", status_code=307)
     return {"status": "ok", "service": "project-jtea-api"}
 
 
