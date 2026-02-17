@@ -91,11 +91,11 @@ Per collegare velocemente il repository al progetto Railway indicato e scaricare
 bash scripts/railway_codex_setup.sh
 ```
 
-Se l'ambiente blocca il registry npm predefinito (es. `E403`), usa il bootstrap CLI: prova install standard, senza proxy e infine mirror.
+Se l'ambiente blocca il registry npm predefinito (es. `E403`), usa il bootstrap CLI con fallback mirror:
 
 ```bash
 bash scripts/railway_cli_bootstrap.sh
-# opzionale: mirror esplicito
+# oppure con mirror esplicito
 NPM_REGISTRY_MIRROR=https://registry.npmmirror.com bash scripts/railway_cli_bootstrap.sh
 ```
 
