@@ -91,6 +91,16 @@ Per collegare velocemente il repository al progetto Railway indicato e scaricare
 bash scripts/railway_codex_setup.sh
 ```
 
+Se l'ambiente blocca il registry npm predefinito (es. `E403`), usa il bootstrap CLI: prova install standard, senza proxy e infine mirror.
+
+```bash
+bash scripts/railway_cli_bootstrap.sh
+# opzionale: mirror esplicito
+NPM_REGISTRY_MIRROR=https://registry.npmmirror.com bash scripts/railway_cli_bootstrap.sh
+```
+
+In ambiente non interattivo imposta anche `RAILWAY_TOKEN` per eseguire operazioni di modifica su Railway.
+
 Lo script usa di default questi ID (sovrascrivibili via env):
 - `PROJECT_ID=e9c06cf5-a20b-440f-92c5-a165ff996232`
 - `SERVICE_ID=be554fa7-7c1c-480e-adfb-6a19e37618e5`
@@ -101,6 +111,7 @@ Esempio con override:
 ```bash
 PROJECT_ID=<project-id> SERVICE_ID=<service-id> ENVIRONMENT_ID=<environment-id> bash scripts/railway_codex_setup.sh
 ```
+
 
 ### Verifica rapida post deploy
 
