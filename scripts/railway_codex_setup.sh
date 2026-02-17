@@ -24,8 +24,14 @@ fi
 
 echo "[2/5] Verifica login Railway..."
 if ! railway whoami >/dev/null 2>&1; then
-  echo "Non risulti autenticato. Avvio login interattivo..."
-  railway login
+  if [[ -t 0 ]]; then
+    echo "Non risulti autenticato. Avvio login interattivo..."
+    railway login
+  else
+    echo "[ERROR] Non autenticato e shell non interattiva (no TTY)." >&2
+    echo "[HINT] Esporta RAILWAY_TOKEN valido e riesegui lo script." >&2
+    exit 3
+  fi
 fi
 
 echo "[3/5] Link progetto e servizio"

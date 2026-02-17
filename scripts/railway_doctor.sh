@@ -68,16 +68,27 @@ say ""; say "[5/8] Auth check"
 if railway whoami >/dev/null 2>&1; then
   say "auth=ok"
 else
-  warn "Not logged in. Starting interactive login..."
-  railway login
+  if [[ -t 0 ]]; then
+    warn "Not logged in. Starting interactive login..."
+    railway login
+  else
+    err "Not logged in and shell is non-interactive (no TTY)."
+    err "Set RAILWAY_TOKEN and rerun: RAILWAY_TOKEN=<token> bash scripts/railway_doctor.sh"
+    exit 6
+  fi
 fi
 
 say ""; say "[6/8] Link check"
 if railway link --project "$PROJECT_ID" --service "$SERVICE_ID" --environment "$ENVIRONMENT_ID" >/dev/null 2>&1; then
   say "link=ok"
 else
-  warn "Could not link using IDs directly. Falling back to interactive railway link..."
-  railway link
+  if [[ -t 0 ]]; then
+    warn "Could not link using IDs directly. Falling back to interactive railway link..."
+    railway link
+  else
+    err "Could not link with IDs and interactive fallback is unavailable (no TTY)."
+    exit 7
+  fi
 fi
 
 say ""; say "[7/8] Variables pull test"
