@@ -62,6 +62,12 @@ Le variabili principali sono:
    - frontend: root directory `frontend` per build/run Next.js.
 3. Imposta le variabili d'ambiente richieste (vedi tabella nella documentazione o `.env.example`).
 
+### Nota importante (errore build frontend `python: command not found`)
+Se il servizio frontend usa root directory `frontend`, **non deve** eseguire comandi Python.
+Con questa configurazione `railway.json` Railway usa l'autodetection Nixpacks (Node per frontend, Python per backend).
+
+Nel servizio frontend imposta solo variabili frontend (es. `NEXT_PUBLIC_API_URL`) e rimuovi variabili backend non necessarie come `DATABASE_URL`.
+
 ### Railway: variabili da impostare (backend)
 
 Obbligatorie:
