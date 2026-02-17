@@ -21,7 +21,8 @@ say ""; say "[1/8] Git branch + script version"
 current_branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'unknown')"
 say "branch=$current_branch"
 if [[ -f scripts/railway_codex_setup.sh ]]; then
-  if rg -n "\[1/5\]" scripts/railway_codex_setup.sh >/dev/null 2>&1; then
+  if rg -n "\[1/5\] Verifica connettività a Railway" scripts/railway_codex_setup.sh >/dev/null 2>&1 \
+  && rg -n "\[5/5\] Done" scripts/railway_codex_setup.sh >/dev/null 2>&1; then
     say "setup-script-version=latest"
   else
     warn "setup-script-version=legacy (non latest). Pull/merge latest branch before continuing."
@@ -33,12 +34,19 @@ fi
 
 say ""; say "[2/8] CLI availability"
 if ! command -v railway >/dev/null 2>&1; then
-  err "Railway CLI not found. Install: npm install -g @railway/cli"
+  err "Railway CLI not found. Install: bash scripts/railway_cli_bootstrap.sh (or npm install -g @railway/cli)"
+  warn "If npm install returns 403, this runtime likely cannot reach registry.npmjs.org with required permissions."
+  warn "Use a local machine/CI runner with npm registry access, then rerun this doctor."
   exit 2
 fi
 railway --version || true
 
 say ""; say "[3/8] Network reachability"
+if [[ -n "${HTTP_PROXY:-}${HTTPS_PROXY:-}${http_proxy:-}${https_proxy:-}" ]]; then
+  say "proxy=detected"
+else
+  warn "proxy=not-detected"
+fi
 if ! curl -fsSI --max-time 10 https://railway.com >/dev/null 2>&1; then
   err "Cannot reach https://railway.com from this environment."
   exit 3
@@ -65,16 +73,27 @@ say ""; say "[5/8] Auth check"
 if railway whoami >/dev/null 2>&1; then
   say "auth=ok"
 else
-  warn "Not logged in. Starting interactive login..."
-  railway login
+  if [[ -t 0 ]]; then
+    warn "Not logged in. Starting interactive login..."
+    railway login
+  else
+    err "Not logged in and shell is non-interactive (no TTY)."
+    err "Set RAILWAY_TOKEN and rerun: RAILWAY_TOKEN=<token> bash scripts/railway_doctor.sh"
+    exit 6
+  fi
 fi
 
 say ""; say "[6/8] Link check"
 if railway link --project "$PROJECT_ID" --service "$SERVICE_ID" --environment "$ENVIRONMENT_ID" >/dev/null 2>&1; then
   say "link=ok"
 else
-  warn "Could not link using IDs directly. Falling back to interactive railway link..."
-  railway link
+  if [[ -t 0 ]]; then
+    warn "Could not link using IDs directly. Falling back to interactive railway link..."
+    railway link
+  else
+    err "Could not link with IDs and interactive fallback is unavailable (no TTY)."
+    exit 7
+  fi
 fi
 
 say ""; say "[7/8] Variables pull test"
