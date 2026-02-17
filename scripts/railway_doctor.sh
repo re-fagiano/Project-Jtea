@@ -21,7 +21,8 @@ say ""; say "[1/8] Git branch + script version"
 current_branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'unknown')"
 say "branch=$current_branch"
 if [[ -f scripts/railway_codex_setup.sh ]]; then
-  if rg -n "\[1/5\]" scripts/railway_codex_setup.sh >/dev/null 2>&1; then
+  if rg -n "\[1/5\] Verifica connettività a Railway" scripts/railway_codex_setup.sh >/dev/null 2>&1 \
+  && rg -n "\[5/5\] Done" scripts/railway_codex_setup.sh >/dev/null 2>&1; then
     say "setup-script-version=latest"
   else
     warn "setup-script-version=legacy (non latest). Pull/merge latest branch before continuing."
@@ -34,6 +35,8 @@ fi
 say ""; say "[2/8] CLI availability"
 if ! command -v railway >/dev/null 2>&1; then
   err "Railway CLI not found. Install: npm install -g @railway/cli"
+  warn "If npm install returns 403, this runtime likely cannot reach registry.npmjs.org with required permissions."
+  warn "Use a local machine/CI runner with npm registry access, then rerun this doctor."
   exit 2
 fi
 railway --version || true
