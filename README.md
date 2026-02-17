@@ -57,7 +57,9 @@ Le variabili principali sono:
 
 ## Deploy su Railway
 1. Collega il repo a Railway.
-2. Railway userà `railway.json` (Nixpacks) e avvierà `bash start.sh`.
+2. Crea **due servizi separati**:
+   - backend: root directory repository (`/`) per usare `start.sh` + FastAPI.
+   - frontend: root directory `frontend` per build/run Next.js.
 3. Imposta le variabili d'ambiente richieste (vedi tabella nella documentazione o `.env.example`).
 
 ### Railway: variabili da impostare (backend)
@@ -83,6 +85,11 @@ Opzionali:
 ### Railway: variabili frontend
 
 - `NEXT_PUBLIC_API_URL=https://<dominio-backend-railway>`
+
+### Collegamento backend ↔ frontend su Railway
+- Nel servizio frontend imposta: `NEXT_PUBLIC_API_URL=https://<dominio-backend-railway>`.
+- Nel servizio backend imposta: `FRONTEND_URL=https://<dominio-frontend-railway>`.
+- Se `FRONTEND_URL` manca, in produzione la root backend (`/`) reindirizza a `/docs`.
 
 ### Collegamento rapido Codex ↔ Railway (questo progetto)
 Per collegare velocemente il repository al progetto Railway indicato e scaricare le variabili del servizio backend:
