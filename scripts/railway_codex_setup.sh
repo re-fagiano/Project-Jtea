@@ -11,7 +11,7 @@ SERVICE_ID="${SERVICE_ID:-be554fa7-7c1c-480e-adfb-6a19e37618e5}"
 ENVIRONMENT_ID="${ENVIRONMENT_ID:-294682c0-50e3-4792-8913-87516a279aca}"
 
 if ! command -v railway >/dev/null 2>&1; then
-  echo "[ERROR] Railway CLI non trovata. Installa con: bash scripts/railway_cli_bootstrap.sh (o npm install -g @railway/cli)" >&2
+  echo "[ERROR] Railway CLI non trovata. Installa con: npm install -g @railway/cli" >&2
   echo "[HINT] Se ricevi 403 dal registry npm, prova in un ambiente con accesso a registry.npmjs.org." >&2
   exit 1
 fi
