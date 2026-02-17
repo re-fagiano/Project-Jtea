@@ -91,6 +91,12 @@ Per collegare velocemente il repository al progetto Railway indicato e scaricare
 bash scripts/railway_codex_setup.sh
 ```
 
+Per impostare rapidamente le variabili backend obbligatorie su Railway:
+
+```bash
+SECRET_KEY=<chiave-lunga-casuale> CORS_ORIGINS=https://<dominio-frontend> bash scripts/railway_variables_set.sh --required-defaults
+```
+
 Se l'ambiente blocca il registry npm predefinito (es. `E403`), usa il bootstrap CLI con fallback mirror:
 
 ```bash
