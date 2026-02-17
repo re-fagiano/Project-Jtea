@@ -84,6 +84,60 @@ Opzionali:
 
 - `NEXT_PUBLIC_API_URL=https://<dominio-backend-railway>`
 
+### Codex + Railway (runbook operativo)
+Se stai lavorando dalla console del progetto (GitHub Codespaces o terminale locale), usa questa sequenza:
+
+```bash
+npm install -g @openai/codex
+npm install -g @railway/cli
+railway login
+```
+
+Poi verifica e diagnostica eventuali problemi con:
+
+```bash
+bash scripts/railway_doctor.sh
+```
+
+Se il doctor passa, esegui il setup del repository Railway:
+
+```bash
+unset RAILWAY_TOKEN
+bash scripts/railway_codex_setup.sh
+test -s backend/.env.railway && echo OK
+```
+
+> Nota: `RAILWAY_TOKEN=<token>` nel README è un placeholder. Non usare le parentesi angolari `< >` nella shell.
+
+### Collegamento rapido Codex ↔ Railway (questo progetto)
+Per collegare velocemente il repository al progetto Railway indicato e scaricare le variabili del servizio backend:
+
+```bash
+bash scripts/railway_codex_setup.sh
+```
+
+Lo script usa di default questi ID (sovrascrivibili via env):
+- `PROJECT_ID=e9c06cf5-a20b-440f-92c5-a165ff996232`
+- `SERVICE_ID=be554fa7-7c1c-480e-adfb-6a19e37618e5`
+- `ENVIRONMENT_ID=294682c0-50e3-4792-8913-87516a279aca`
+
+Autenticazione non interattiva (consigliata in CI/Codex):
+
+```bash
+RAILWAY_TOKEN=<railway-token> bash scripts/railway_codex_setup.sh
+```
+
+Esempio con override completo:
+
+```bash
+PROJECT_ID=<project-id> SERVICE_ID=<service-id> ENVIRONMENT_ID=<environment-id> OUT_FILE=backend/.env.railway RAILWAY_TOKEN=<railway-token> bash scripts/railway_codex_setup.sh
+```
+
+Se ricevi errori `CONNECT tunnel failed` / `403`, il problema è quasi sempre sul proxy/firewall in uscita: devi consentire almeno `railway.com` e `registry.npmjs.org`.
+
+Link diretto al servizio di questo progetto:
+- `https://railway.com/project/e9c06cf5-a20b-440f-92c5-a165ff996232/service/be554fa7-7c1c-480e-adfb-6a19e37618e5?environmentId=294682c0-50e3-4792-8913-87516a279aca`
+
 ### Verifica rapida post deploy
 
 ```bash
