@@ -34,7 +34,7 @@ fi
 
 say ""; say "[2/8] CLI availability"
 if ! command -v railway >/dev/null 2>&1; then
-  err "Railway CLI not found. Install: bash scripts/railway_cli_bootstrap.sh (or npm install -g @railway/cli)"
+  err "Railway CLI not found. Install: npm install -g @railway/cli"
   warn "If npm install returns 403, this runtime likely cannot reach registry.npmjs.org with required permissions."
   warn "Use a local machine/CI runner with npm registry access, then rerun this doctor."
   exit 2
