@@ -6,13 +6,12 @@ cd backend
 HOST="${HOST:-0.0.0.0}"
 PORT="${PORT:-8000}"
 
-# In Railway/Nixpacks prefer module execution to avoid PATH issues.
-if command -v python >/dev/null 2>&1 && python -c "import uvicorn" >/dev/null 2>&1; then
-  exec python -m uvicorn app.main:app --host "$HOST" --port "$PORT"
-fi
-
 if command -v uvicorn >/dev/null 2>&1; then
   exec uvicorn app.main:app --host "$HOST" --port "$PORT"
+fi
+
+if command -v python >/dev/null 2>&1 && python -c "import uvicorn" >/dev/null 2>&1; then
+  exec python -m uvicorn app.main:app --host "$HOST" --port "$PORT"
 fi
 
 echo "Errore: uvicorn non trovato. Installa le dipendenze backend prima di avviare il progetto." >&2

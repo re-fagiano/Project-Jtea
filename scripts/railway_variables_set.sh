@@ -30,7 +30,7 @@ fi
 railway link --project "$PROJECT_ID" --service "$SERVICE_ID" --environment "$ENVIRONMENT_ID" >/dev/null
 
 set_required_defaults() {
-  : "${SECRET_KEY:?Imposta SECRET_KEY nell ambiente prima di usare --required-defaults}"
+  : "${SECRET_KEY:?Imposta SECRET_KEY nell'ambiente prima di usare --required-defaults}"
 
   railway variables set ENVIRONMENT production --environment "$ENVIRONMENT_ID"
   railway variables set SECRET_KEY "$SECRET_KEY" --environment "$ENVIRONMENT_ID"
@@ -46,14 +46,8 @@ set_required_defaults() {
     echo "[WARN] CORS_ORIGINS non impostato: configurarlo manualmente con il dominio frontend." >&2
   fi
 
-  if [[ -n "${FRONTEND_URL:-}" ]]; then
-    railway variables set FRONTEND_URL "$FRONTEND_URL" --environment "$ENVIRONMENT_ID"
-  else
-    echo "[WARN] FRONTEND_URL non impostato: in produzione la root reindirizzera a /docs." >&2
-  fi
-
-  echo "[OK] Variabili backend obbligatorie impostate."
-  echo "[NOTE] DATABASE_URL viene iniettata automaticamente se il servizio Postgres e collegato."
+  echo "[OK] Variabili backend obbligatorie impostate." 
+  echo "[NOTE] DATABASE_URL viene iniettata automaticamente se il servizio Postgres è collegato." 
 }
 
 if [[ $# -eq 1 && "$1" == "--required-defaults" ]]; then
@@ -66,7 +60,7 @@ elif [[ $# -eq 2 ]]; then
 else
   echo "Usage:" >&2
   echo "  bash scripts/railway_variables_set.sh <KEY> <VALUE>" >&2
-  echo "  SECRET_KEY=... CORS_ORIGINS=https://frontend.example.com FRONTEND_URL=https://frontend.example.com bash scripts/railway_variables_set.sh --required-defaults" >&2
+  echo "  SECRET_KEY=... CORS_ORIGINS=https://frontend.example.com bash scripts/railway_variables_set.sh --required-defaults" >&2
   exit 1
 fi
 
